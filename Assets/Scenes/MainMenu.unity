@@ -633,6 +633,13 @@ MonoBehaviour:
   sensitivityY: 0.2
   minY: -60
   maxY: 60
+  tpsHeight: 1.5
+  tpsOffsetX: 0.5
+  minDistance: 0
+  maxDistance: 100
+  scrollSpeed: 2
+  switchToFPSThreshold: 0.3
+  playerMesh: {fileID: 1475200627}
 --- !u!1 &410087039
 GameObject:
   m_ObjectHideFlags: 0
@@ -2226,7 +2233,7 @@ Transform:
   m_GameObject: {fileID: 1475200624}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1, z: 0}
+  m_LocalPosition: {x: 1, y: 1, z: 1}
   m_LocalScale: {x: 0, y: 1, z: 0}
   m_ConstrainProportionsScale: 0
   m_Children:
