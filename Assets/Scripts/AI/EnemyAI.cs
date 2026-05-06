@@ -29,7 +29,8 @@ public class EnemyAI : MonoBehaviour
     {
         _agent = GetComponent<NavMeshAgent>();
         _player = GameObject.FindWithTag("Player").transform;
-        _agent.stoppingDistance = combatRange - 0.2f;
+        _agent.stoppingDistance = combatRange;
+        _agent.autoBraking = true;
         ApplyDifficulty();
     }
 

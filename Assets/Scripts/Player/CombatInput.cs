@@ -6,7 +6,6 @@ public class CombatInput : MonoBehaviour
     public CombatSystem myCombat;
     public CombatSystem enemyCombat;
 
-    // La direction actuelle pointée par la souris
     private CombatDirection _currentDirection = CombatDirection.Right;
 
     void Update()
@@ -15,25 +14,19 @@ public class CombatInput : MonoBehaviour
         var mouse = Mouse.current;
         if (keyboard == null || mouse == null) return;
 
-        // Met à jour la direction en temps réel selon la souris
         UpdateDirectionFromMouse(mouse);
 
-        // Attaque : clic gauche
         HandleMouseAttack(mouse);
 
-        // Bloc : clic droit maintenu
         HandleMouseBlock(mouse);
 
-        // Touches clavier directes
         HandleKeyboard(keyboard);
     }
 
     void UpdateDirectionFromMouse(Mouse mouse)
     {
-        // On récupère le delta de la souris (mouvement relatif)
         Vector2 delta = mouse.delta.ReadValue();
 
-        // On ne met à jour que si la souris bouge vraiment
         if (delta.magnitude < 0.5f) return;
 
         _currentDirection = GetDirectionFromDelta(delta);
@@ -41,7 +34,6 @@ public class CombatInput : MonoBehaviour
 
     void HandleMouseAttack(Mouse mouse)
     {
-        // Clic gauche = attaque dans la direction actuelle
         if (mouse.leftButton.wasPressedThisFrame)
         {
             myCombat.ReleaseBlock();
@@ -52,13 +44,11 @@ public class CombatInput : MonoBehaviour
 
     void HandleMouseBlock(Mouse mouse)
     {
-        // Clic droit maintenu = bloc dans la direction actuelle
         if (mouse.rightButton.isPressed)
         {
             myCombat.SetBlock(_currentDirection);
         }
 
-        // Clic droit relâché = on arrête de bloquer
         if (mouse.rightButton.wasReleasedThisFrame)
         {
             myCombat.ReleaseBlock();
@@ -67,7 +57,6 @@ public class CombatInput : MonoBehaviour
 
     void HandleKeyboard(Keyboard keyboard)
     {
-        // Touches d'attaque directes (remappables plus tard dans les options)
         if (keyboard.leftArrowKey.wasPressedThisFrame)
             myCombat.Attack(CombatDirection.Left, enemyCombat);
 
@@ -80,7 +69,6 @@ public class CombatInput : MonoBehaviour
         if (keyboard.downArrowKey.wasPressedThisFrame)
             myCombat.Attack(CombatDirection.Bottom, enemyCombat);
 
-        // Touches de bloc directes
         if (keyboard.numpad4Key.isPressed)
             myCombat.SetBlock(CombatDirection.Left);
 
@@ -93,16 +81,16 @@ public class CombatInput : MonoBehaviour
         else if (keyboard.numpad2Key.isPressed)
             myCombat.SetBlock(CombatDirection.Bottom);
 
-        // Relâche le bloc si aucune touche de bloc enfoncée
         if (!keyboard.numpad4Key.isPressed &&
             !keyboard.numpad6Key.isPressed &&
             !keyboard.numpad8Key.isPressed &&
             !keyboard.numpad2Key.isPressed)
         {
-            // Ne relâche pas si clic droit maintenu
             if (!Mouse.current.rightButton.isPressed)
                 myCombat.ReleaseBlock();
         }
+        if (keyboard.fKey.wasPressedThisFrame)
+            myCombat.Kick(enemyCombat);
     }
 
     CombatDirection GetDirectionFromDelta(Vector2 delta)
@@ -115,6 +103,6 @@ public class CombatInput : MonoBehaviour
         return CombatDirection.Right;
     }
 
-    // Accessible par l'UI pour afficher l'indicateur
+
     public CombatDirection GetCurrentDirection() => _currentDirection;
 }
