@@ -1,4 +1,4 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using UnityEngine.AI;
 
 public enum AIDifficulty { Easy, Medium, Hard }
@@ -7,14 +7,14 @@ public enum AIState { Idle, Approach, Combat, Dead }
 [RequireComponent(typeof(NavMeshAgent))]
 public class EnemyAI : MonoBehaviour
 {
-    [Header("Difficulté")]
+    [Header("DifficultÃ©")]
     public AIDifficulty difficulty = AIDifficulty.Medium;
 
-    [Header("Détection")]
+    [Header("DÃ©tection")]
     public float detectionRange = 10f;
     public float combatRange = 2f;
 
-    [Header("Références")]
+    [Header("RÃ©fÃ©rences")]
     public CombatSystem myCombat;
     public CombatSystem playerCombat;
     public HealthSystem myHealth;
@@ -22,8 +22,6 @@ public class EnemyAI : MonoBehaviour
     private NavMeshAgent _agent;
     private Transform _player;
     private AIState _state = AIState.Idle;
-
-    // Stats selon difficulté
     private float _reactionTime;
     private float _blockChance;
 
@@ -31,6 +29,7 @@ public class EnemyAI : MonoBehaviour
     {
         _agent = GetComponent<NavMeshAgent>();
         _player = GameObject.FindWithTag("Player").transform;
+        _agent.stoppingDistance = combatRange - 0.2f;
         ApplyDifficulty();
     }
 
@@ -39,25 +38,22 @@ public class EnemyAI : MonoBehaviour
         switch (difficulty)
         {
             case AIDifficulty.Easy:
-                _reactionTime = 2f;    // réagit lentement
-                _blockChance = 0.2f;   // bloque rarement
+                _reactionTime = 2f;
+                _blockChance = 0.2f;
                 _agent.speed = 2f;
                 break;
-
             case AIDifficulty.Medium:
                 _reactionTime = 1f;
                 _blockChance = 0.5f;
                 _agent.speed = 3.5f;
                 break;
-
             case AIDifficulty.Hard:
-                _reactionTime = 0.3f;  // réagit très vite
-                _blockChance = 0.8f;   // bloque souvent
+                _reactionTime = 0.3f;
+                _blockChance = 0.8f;
                 _agent.speed = 5f;
                 break;
         }
 
-        // Lance la boucle de décision selon le temps de réaction
         InvokeRepeating(nameof(AIDecisionTick), _reactionTime, _reactionTime);
     }
 
@@ -65,7 +61,6 @@ public class EnemyAI : MonoBehaviour
     {
         if (_state == AIState.Dead) return;
 
-        // Vérifie si le joueur est mort
         if (myHealth.Current <= 0)
         {
             Die();
@@ -74,12 +69,12 @@ public class EnemyAI : MonoBehaviour
 
         float distanceToPlayer = Vector3.Distance(transform.position, _player.position);
 
-        // Machine à états
         if (distanceToPlayer <= combatRange)
         {
             _state = AIState.Combat;
-            _agent.isStopped = true; // arrête de bouger en combat
-            FacePlayer();            // regarde toujours le joueur
+            _agent.isStopped = true;
+            _agent.velocity = Vector3.zero;
+            FacePlayer();
         }
         else if (distanceToPlayer <= detectionRange)
         {
@@ -96,14 +91,12 @@ public class EnemyAI : MonoBehaviour
 
     void AIDecisionTick()
     {
-        // Ne prend des décisions qu'en combat
         if (_state != AIState.Combat) return;
 
         float roll = Random.value;
 
         if (roll < _blockChance)
         {
-            // Choisit une direction de bloc aléatoire
             CombatDirection[] blocs = {
                 CombatDirection.Left,
                 CombatDirection.Center,
@@ -113,7 +106,6 @@ public class EnemyAI : MonoBehaviour
         }
         else
         {
-            // Attaque dans une direction aléatoire
             myCombat.ReleaseBlock();
             CombatDirection[] attaques = {
                 CombatDirection.Left,
@@ -127,7 +119,6 @@ public class EnemyAI : MonoBehaviour
 
     void FacePlayer()
     {
-        // L'ennemi regarde toujours vers le joueur
         Vector3 direction = (_player.position - transform.position).normalized;
         direction.y = 0;
         if (direction != Vector3.zero)
@@ -138,8 +129,9 @@ public class EnemyAI : MonoBehaviour
     {
         _state = AIState.Dead;
         _agent.isStopped = true;
+        _agent.velocity = Vector3.zero;
         CancelInvoke(nameof(AIDecisionTick));
         Debug.Log($"{gameObject.name} est mort !");
-        Destroy(gameObject, 2f); // disparaît après 2 secondes
+        Destroy(gameObject, 2f);
     }
 }

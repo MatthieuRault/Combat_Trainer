@@ -79,7 +79,7 @@ public class CombatSystem : MonoBehaviour
         Vector3 direction = (transform.position - attackerPos).normalized;
         CharacterController cc = GetComponent<CharacterController>();
         if (cc != null)
-            cc.Move(direction * knockbackForce * Time.deltaTime);
+            cc.Move(direction * knockbackForce);
     }
 
     public void SetBlock(CombatDirection direction)

@@ -154,9 +154,9 @@ MonoBehaviour:
   combatInput: {fileID: 1475200631}
   arrowImage: {fileID: 543918803}
   enemy: {fileID: 1280219950}
-  enemyCollider: {fileID: 1280219947}
   mainCamera: {fileID: 330585545}
-  margin: 20
+  offsetX: 150
+  offsetY: 150
 --- !u!114 &131697541
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -254,7 +254,7 @@ GameObject:
   - component: {fileID: 330585544}
   - component: {fileID: 330585547}
   - component: {fileID: 330585548}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Main Camera
   m_TagString: MainCamera
   m_Icon: {fileID: 0}
@@ -391,8 +391,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ebc50561aef01cf42a5bf5cb8fc995f8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CameraController
-  sensitivityX: 2
-  sensitivityY: 2
+  sensitivityX: 0.2
+  sensitivityY: 0.2
   minY: -60
   maxY: 60
 --- !u!1 &410087039
@@ -872,7 +872,7 @@ GameObject:
   - component: {fileID: 1280219943}
   - component: {fileID: 1280219942}
   - component: {fileID: 1280219941}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Enemy
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -892,7 +892,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyAI
   difficulty: 1
-  detectionRange: 10
+  detectionRange: 2
   combatRange: 2
   myCombat: {fileID: 1280219944}
   playerCombat: {fileID: 1475200632}
@@ -906,19 +906,19 @@ NavMeshAgent:
   m_GameObject: {fileID: 1280219940}
   m_Enabled: 1
   m_AgentTypeID: 0
-  m_Radius: 0.5
+  m_Radius: 0.1
   m_Speed: 3.5
   m_Acceleration: 8
   avoidancePriority: 50
   m_AngularSpeed: 120
-  m_StoppingDistance: 1.8
+  m_StoppingDistance: 2
   m_AutoTraverseOffMeshLink: 1
   m_AutoBraking: 1
   m_AutoRepath: 1
   m_Height: 2
   m_BaseOffset: 1
   m_WalkableMask: 4294967295
-  m_ObstacleAvoidanceType: 4
+  m_ObstacleAvoidanceType: 0
 --- !u!143 &1280219943
 CharacterController:
   m_ObjectHideFlags: 0
@@ -1106,14 +1106,13 @@ GameObject:
   - component: {fileID: 1475200629}
   - component: {fileID: 1475200628}
   - component: {fileID: 1475200627}
-  - component: {fileID: 1475200626}
   - component: {fileID: 1475200625}
   - component: {fileID: 1475200630}
   - component: {fileID: 1475200634}
   - component: {fileID: 1475200633}
   - component: {fileID: 1475200632}
   - component: {fileID: 1475200631}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Player
   m_TagString: Player
   m_Icon: {fileID: 0}
@@ -1139,35 +1138,12 @@ CharacterController:
   m_Enabled: 1
   serializedVersion: 3
   m_Height: 2
-  m_Radius: 0
+  m_Radius: 0.5
   m_SlopeLimit: 45
   m_StepOffset: 0.3
   m_SkinWidth: 0.08
   m_MinMoveDistance: 0.001
-  m_Center: {x: 0, y: 0, z: 0}
---- !u!136 &1475200626
-CapsuleCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1475200624}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Radius: 0.5
-  m_Height: 2
-  m_Direction: 1
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Center: {x: 0, y: 1, z: 0}
 --- !u!23 &1475200627
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -1234,7 +1210,7 @@ Transform:
   m_GameObject: {fileID: 1475200624}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 1, z: 0}
   m_LocalScale: {x: 0, y: 1, z: 0}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -1456,9 +1432,9 @@ MonoBehaviour:
   combatInput: {fileID: 1475200631}
   arrowImage: {fileID: 543918803}
   enemy: {fileID: 1280219950}
-  enemyCollider: {fileID: 0}
   mainCamera: {fileID: 330585545}
-  margin: 20
+  offsetX: 150
+  offsetY: 150
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
