@@ -39,18 +39,18 @@ public class EnemyAI : MonoBehaviour
         switch (difficulty)
         {
             case AIDifficulty.Easy:
-                _reactionTime = 2f;
-                _blockChance = 0.2f;
+                _reactionTime = 5f;
+                _blockChance = 0.15f;
                 _agent.speed = 2f;
                 break;
             case AIDifficulty.Medium:
-                _reactionTime = 1f;
-                _blockChance = 0.5f;
+                _reactionTime = 4f;
+                _blockChance = 0.45f;
                 _agent.speed = 3.5f;
                 break;
             case AIDifficulty.Hard:
-                _reactionTime = 0.3f;
-                _blockChance = 0.8f;
+                _reactionTime = 2.5f;
+                _blockChance = 0.75f;
                 _agent.speed = 5f;
                 break;
         }
@@ -114,7 +114,7 @@ public class EnemyAI : MonoBehaviour
                 CombatDirection.Top,
                 CombatDirection.Bottom
             };
-            myCombat.Attack(attaques[Random.Range(0, attaques.Length)], playerCombat);
+            myCombat.StartAttack(attaques[Random.Range(0, attaques.Length)], playerCombat, false);
         }
     }
 

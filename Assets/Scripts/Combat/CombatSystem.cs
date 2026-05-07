@@ -6,8 +6,13 @@ public class CombatSystem : MonoBehaviour
 {
     [Header("Stats de combat")]
     public float attackDamage = 20f;
-    public float attackCooldown = 0.6f;
+    public float heavyAttackMultiplier = 1.5f;
+    public float attackCooldown = 1.1f;
     public float attackRange = 2f;
+
+    [Header("Windup")]
+    public float lightWindup = 0.6f;
+    public float heavyWindup = 1.2f;
 
     [Header("Kick")]
     public float kickCooldown = 3f;
@@ -28,38 +33,90 @@ public class CombatSystem : MonoBehaviour
     private float _attackTimer = 0f;
     private float _kickTimer = 0f;
 
+    // Windup en cours
+    private bool _isWindingUp = false;
+    private float _windupTimer = 0f;
+    private float _windupDuration = 0f;
+    private CombatDirection _windupDirection;
+    private CombatSystem _windupTarget;
+    private bool _isHeavy = false;
+
+    // Direction d'attaque visible (pour la flèche)
+    public CombatDirection CurrentAttackDirection => _windupDirection;
+    public bool IsWindingUp => _isWindingUp;
+    public float WindupProgress => _isWindingUp ? _windupTimer / _windupDuration : 0f;
+
     void Update()
     {
         if (_attackTimer > 0) _attackTimer -= Time.deltaTime;
         if (_kickTimer > 0) _kickTimer -= Time.deltaTime;
+
+        // Windup en cours
+        if (_isWindingUp)
+        {
+            _windupTimer += Time.deltaTime;
+            if (_windupTimer >= _windupDuration)
+                ReleaseAttack();
+        }
     }
 
     // ── ATTAQUE ──────────────────────────────────────────
-    public void Attack(CombatDirection direction, CombatSystem target)
+
+    // Démarre le windup
+    public void StartAttack(CombatDirection direction, CombatSystem target, bool heavy)
     {
-        if (_attackTimer > 0) return;
+        if (_attackTimer > 0)
+        {
+            Debug.Log("Can't attack so fast !");
+            return;
+        }
+        if (_isWindingUp) return;
         if (!stamina.Use(staminaCostAttack)) return;
 
+        _isWindingUp = true;
+        _windupTimer = 0f;
+        _windupDirection = direction;
+        _windupTarget = target;
+        _isHeavy = heavy;
+        _windupDuration = heavy ? heavyWindup : lightWindup;
+
+        Debug.Log($"{gameObject.name} prépare une attaque {(heavy ? "LOURDE" : "légère")} en {direction}");
+    }
+
+    // Relâche l'attaque après le windup
+    void ReleaseAttack()
+    {
+        _isWindingUp = false;
         _attackTimer = attackCooldown;
 
-        if (target == null) return;
+        if (_windupTarget == null) return;
 
-        float distance = Vector3.Distance(transform.position, target.transform.position);
+        float distance = Vector3.Distance(transform.position, _windupTarget.transform.position);
         if (distance > attackRange)
         {
-            Debug.Log($"{gameObject.name} trop loin ! ({distance:F1}m)");
+            Debug.Log($"{gameObject.name} trop loin !");
             return;
         }
 
-        target.ReceiveHit(direction, attackDamage);
-        Debug.Log($"{gameObject.name} attaque en {direction}");
+        float damage = _isHeavy ? attackDamage * heavyAttackMultiplier : attackDamage;
+        _windupTarget.ReceiveHit(_windupDirection, damage);
+    }
+
+    // Annule le windup (si on relâche trop tôt)
+    public void CancelAttack()
+    {
+        if (_isWindingUp)
+        {
+            _isWindingUp = false;
+            _windupTimer = 0f;
+            Debug.Log($"{gameObject.name} annule son attaque");
+        }
     }
 
     public void ReceiveHit(CombatDirection attackDirection, float damage)
     {
         if (CheckBlock(attackDirection))
         {
-            // Bloqué — coût stamina pour les deux
             stamina.Use(staminaCostBlock);
             Debug.Log($"{gameObject.name} a bloqué !");
         }
@@ -89,14 +146,12 @@ public class CombatSystem : MonoBehaviour
     {
         if (CheckBlock(CombatDirection.Center))
         {
-            // Kick bloqué — coût stamina pour les deux
             stamina.Use(staminaCostBlock);
             attacker.stamina.Use(staminaCostBlock);
             Debug.Log($"{gameObject.name} a bloqué le kick !");
         }
         else
         {
-            // Kick réussi — stun + léger recul
             StartCoroutine(StunRoutine());
             CharacterController cc = GetComponent<CharacterController>();
             if (cc != null)
