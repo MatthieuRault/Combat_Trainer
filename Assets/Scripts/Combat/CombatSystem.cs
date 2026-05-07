@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using TMPro;
+using UnityEngine;
 
 public enum CombatDirection { Left, Right, Top, Bottom, Center }
 
@@ -33,7 +34,6 @@ public class CombatSystem : MonoBehaviour
     private float _attackTimer = 0f;
     private float _kickTimer = 0f;
 
-    // Windup en cours
     private bool _isWindingUp = false;
     private float _windupTimer = 0f;
     private float _windupDuration = 0f;
@@ -41,7 +41,6 @@ public class CombatSystem : MonoBehaviour
     private CombatSystem _windupTarget;
     private bool _isHeavy = false;
 
-    // Direction d'attaque visible (pour la flèche)
     public CombatDirection CurrentAttackDirection => _windupDirection;
     public bool IsWindingUp => _isWindingUp;
     public float WindupProgress => _isWindingUp ? _windupTimer / _windupDuration : 0f;
@@ -51,7 +50,6 @@ public class CombatSystem : MonoBehaviour
         if (_attackTimer > 0) _attackTimer -= Time.deltaTime;
         if (_kickTimer > 0) _kickTimer -= Time.deltaTime;
 
-        // Windup en cours
         if (_isWindingUp)
         {
             _windupTimer += Time.deltaTime;
@@ -61,13 +59,11 @@ public class CombatSystem : MonoBehaviour
     }
 
     // ── ATTAQUE ──────────────────────────────────────────
-
-    // Démarre le windup
     public void StartAttack(CombatDirection direction, CombatSystem target, bool heavy)
     {
         if (_attackTimer > 0)
         {
-            Debug.Log("Can't attack so fast !");
+            SpawnPopup("Can't attack so fast!", Color.white, transform.position + Vector3.up * 2f);
             return;
         }
         if (_isWindingUp) return;
@@ -79,11 +75,8 @@ public class CombatSystem : MonoBehaviour
         _windupTarget = target;
         _isHeavy = heavy;
         _windupDuration = heavy ? heavyWindup : lightWindup;
-
-        Debug.Log($"{gameObject.name} prépare une attaque {(heavy ? "LOURDE" : "légère")} en {direction}");
     }
 
-    // Relâche l'attaque après le windup
     void ReleaseAttack()
     {
         _isWindingUp = false;
@@ -92,38 +85,33 @@ public class CombatSystem : MonoBehaviour
         if (_windupTarget == null) return;
 
         float distance = Vector3.Distance(transform.position, _windupTarget.transform.position);
-        if (distance > attackRange)
-        {
-            Debug.Log($"{gameObject.name} trop loin !");
-            return;
-        }
+        if (distance > attackRange) return;
 
         float damage = _isHeavy ? attackDamage * heavyAttackMultiplier : attackDamage;
         _windupTarget.ReceiveHit(_windupDirection, damage);
     }
 
-    // Annule le windup (si on relâche trop tôt)
     public void CancelAttack()
     {
         if (_isWindingUp)
         {
             _isWindingUp = false;
             _windupTimer = 0f;
-            Debug.Log($"{gameObject.name} annule son attaque");
         }
     }
 
+    // ── RECEIVE HIT ──────────────────────────────────────
     public void ReceiveHit(CombatDirection attackDirection, float damage)
     {
         if (CheckBlock(attackDirection))
         {
             stamina.Use(staminaCostBlock);
-            Debug.Log($"{gameObject.name} a bloqué !");
+            SpawnPopup($"{gameObject.name} BLOCK: {(int)damage}", Color.green, transform.position + Vector3.up * 2f);
         }
         else
         {
             health.TakeDamage(damage);
-            Debug.Log($"{gameObject.name} a pris {damage} dégâts !");
+            SpawnPopup($"{gameObject.name} -{(int)damage}", Color.red, transform.position + Vector3.up * 2f);
         }
     }
 
@@ -139,7 +127,6 @@ public class CombatSystem : MonoBehaviour
 
         _kickTimer = kickCooldown;
         target.ReceiveKick(transform.position, this);
-        Debug.Log($"{gameObject.name} donne un kick !");
     }
 
     public void ReceiveKick(Vector3 attackerPos, CombatSystem attacker)
@@ -148,7 +135,7 @@ public class CombatSystem : MonoBehaviour
         {
             stamina.Use(staminaCostBlock);
             attacker.stamina.Use(staminaCostBlock);
-            Debug.Log($"{gameObject.name} a bloqué le kick !");
+            SpawnPopup($"{gameObject.name} KICK BLOCKED!", Color.green, transform.position + Vector3.up * 2f);
         }
         else
         {
@@ -159,7 +146,7 @@ public class CombatSystem : MonoBehaviour
                 Vector3 dir = (transform.position - attackerPos).normalized;
                 cc.Move(dir * kickKnockback);
             }
-            Debug.Log($"{gameObject.name} est déstabilisé !");
+            SpawnPopup($"{gameObject.name} STUNNED!", Color.yellow, transform.position + Vector3.up * 2f);
         }
     }
 
@@ -168,6 +155,24 @@ public class CombatSystem : MonoBehaviour
         _attackTimer = kickStunDuration;
         _kickTimer = kickStunDuration;
         yield return new WaitForSeconds(kickStunDuration);
+    }
+
+    // ── POPUP ─────────────────────────────────────────────
+    void SpawnPopup(string message, Color color, Vector3 position)
+    {
+        GameObject popup = new GameObject("DamagePopup");
+        popup.transform.position = position;
+
+        TextMeshPro tmp = popup.AddComponent<TextMeshPro>();
+        tmp.text = message;
+        tmp.color = color;
+        tmp.fontSize = 4f;
+        tmp.alignment = TextAlignmentOptions.Center;
+
+        DamagePopup dp = popup.AddComponent<DamagePopup>();
+        dp.textComponent = tmp;
+
+        Destroy(popup, 1.5f);
     }
 
     // ── BLOCK ─────────────────────────────────────────────
